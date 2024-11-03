@@ -1,0 +1,19 @@
+
+{
+  "name": "gitlab-ci-cd-demo-complex",
+  "version": "1.0.0",
+  "description": "A complex Node.js app to demonstrate GitLab CI/CD pipeline with logging and routes.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "mocha"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "mocha": "^9.0.0",
+    "chai": "^4.3.4"
+  }
+}
