@@ -1,8 +1,8 @@
-
 stages:
   - build
   - test
   - push
+  - deploy
 
 variables:
   REGISTRY_IMAGE: "${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}"
@@ -14,6 +14,8 @@ build:
     - docker build -t $REGISTRY_IMAGE --build-arg NODE_ENV=production --build-arg PORT=3000 .
   only:
     - main
+  tags:
+    - dind
 
 # Test Job
 test:
@@ -24,6 +26,8 @@ test:
     - npm test
   only:
     - main
+  tags:
+    - dind
 
 # Push Job
 push:
@@ -33,3 +37,23 @@ push:
     - docker push $REGISTRY_IMAGE
   only:
     - main
+  tags:
+    - dind
+
+# Deploy Job
+deploy:
+  stage: deploy
+  script:
+    # Log in to Docker Registry
+    - docker login -u "gitlab-ci-token" -p "$CI_JOB_TOKEN" $CI_REGISTRY
+    # Pull the Docker image
+    - docker pull $REGISTRY_IMAGE
+    # Stop and remove any running container with the same name
+    - docker stop my-app || true
+    - docker rm my-app || true
+    # Run the Docker container
+    - docker run -d --name my-app -p 3000:3000 $REGISTRY_IMAGE
+  only:
+    - main
+  tags:
+    - docker
