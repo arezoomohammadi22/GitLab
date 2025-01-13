@@ -5,6 +5,7 @@ metadata:
 spec:
   rules:
   - host: web-app.example.com
+    ingressClassName: nginx
     http:
       paths:
       - path: /
