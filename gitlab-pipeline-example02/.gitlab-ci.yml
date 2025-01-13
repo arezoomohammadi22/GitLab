@@ -6,44 +6,31 @@ stages:
   - notify
 
 variables:
-  DOCKER_IMAGE: "your-docker-registry/web-app"
+  DOCKER_IMAGE: "web-app"
   HELM_CHART_DIR: "./charts/web-app"
-  KUBE_CONTEXT: "your-k8s-cluster"
+  KUBE_CONTEXT: "kubernetes"
 
 build:
   stage: build
   script:
-    - docker build -t $DOCKER_IMAGE:$CI_COMMIT_SHA .
-    - docker push $DOCKER_IMAGE:$CI_COMMIT_SHA
+    - echo $CI_REGISTRY_PASS | docker login -u $CI_REGISTRY_USER  --password-stdin $CI_NEXUS_REGISTRY
+    - docker build -t $CI_NEXUS_REGISTRY/$DOCKER_IMAGE:$CI_COMMIT_SHA .
+    - docker push $CI_NEXUS_REGISTRY/$DOCKER_IMAGE:$CI_COMMIT_SHA
   only:
     - main
-
-test:
-  stage: test
-  script:
-    - echo "Running tests..."
-    - npm install
-    - npm test
-  only:
-    - main
-
-package_helm:
-  stage: package
-  script:
-    - helm lint $HELM_CHART_DIR
-    - helm package $HELM_CHART_DIR
-  artifacts:
-    paths:
-      - "*.tgz"
-  only:
-    - main
+  tags:
+    - dind
 
 deploy:
   stage: deploy
+  image: docker.arvancloud.ir/dtzar/helm-kubectl:latest
   script:
-    - helm upgrade --install web-app $HELM_CHART_DIR --namespace dev --set image.tag=$CI_COMMIT_SHA
+    - echo "$KUBECONFIG_CONTENT" > kubeconfig
+    - helm upgrade --install web-app $HELM_CHART_DIR --namespace dev --set image.tag=$CI_COMMIT_SHA --kubeconfig ./kubeconfig
   only:
     - main
+  tags:
+    - dind
 
 notify:
   stage: notify
@@ -51,3 +38,5 @@ notify:
     - echo "Deployment Successful!"
   only:
     - main
+  tags:
+    - dind
