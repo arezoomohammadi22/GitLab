@@ -14,6 +14,8 @@ spec:
       labels:
         app: web-app
     spec:
+      imagePullSecrets:
+      - name: sananetco-registry-secret
       containers:
       - name: web-app
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
