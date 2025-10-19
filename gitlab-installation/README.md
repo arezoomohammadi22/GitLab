@@ -169,6 +169,4 @@ GitLab will handle database migrations automatically.
 ---
 
 ## 👨‍💻 Maintainer
-
-Created by [Your Name](https://github.com/<your-username>)  
 © 2025 – Sananetco DevOps Infrastructure
