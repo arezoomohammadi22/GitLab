@@ -100,21 +100,28 @@ mkdir gitlab-docker && cd gitlab-docker
 Create a `docker-compose.yml` file with the following configuration:
 
 ```yaml
-version: '3.6'
+version: "3.8"
+
 services:
   gitlab:
     image: gitlab/gitlab-ce:latest
     container_name: gitlab
-    hostname: gitlab.example.com
     restart: always
+    hostname: "gitlab.example.com"
     environment:
       GITLAB_OMNIBUS_CONFIG: |
-        external_url 'http://gitlab.example.com'
-        gitlab_rails['gitlab_shell_ssh_port'] = 2224
+        external_url 'https://gitlab.sananetco.com'
+        nginx['redirect_http_to_https'] = true
+        letsencrypt['enable'] = false
+
+        # ﻢﺴﯾﺭ SSL ﺩﺎﺨﻟ ﮎﺎﻨﺘﯿﻧﺭ
+        nginx['ssl_certificate'] = "/etc/gitlab/ssl/fullchain.pem"
+        nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/private.pem"
+
     ports:
       - "80:80"
       - "443:443"
-      - "2224:22"
+      - "2222:22"
     volumes:
       - ./config:/etc/gitlab
       - ./logs:/var/log/gitlab
@@ -129,7 +136,7 @@ If you want to customize GitLab further, add configurations in `./config/gitlab.
 
 ```ruby
 external_url 'http://gitlab.example.com'
-gitlab_rails['gitlab_shell_ssh_port'] = 2224
+gitlab_rails['gitlab_shell_ssh_port'] = 2222
 nginx['listen_port'] = 80
 nginx['listen_https'] = false
 ```
