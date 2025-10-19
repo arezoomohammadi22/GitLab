@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    container_name: gitlab
+    restart: always
+    hostname: "gitlab.example.com"
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'https://gitlab.sananetco.com'
+        nginx['redirect_http_to_https'] = true
+        letsencrypt['enable'] = false
+
+        # مسیر SSL داخل کانتینر
+        nginx['ssl_certificate'] = "/etc/gitlab/ssl/fullchain.pem"
+        nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/private.pem"
+
+    ports:
+      - "80:80"
+      - "443:443"
+      - "2222:22"
+    volumes:
+      - ./config:/etc/gitlab
+      - ./logs:/var/log/gitlab
+      - ./data:/var/opt/gitlab
